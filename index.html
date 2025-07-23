@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Digital Accountability Partner</title>
+  <title>Habit Builder & Breaker</title>
   <style>
     * {
       margin: 0;
@@ -13,226 +13,287 @@
     }
 
     body {
-      min-height: 100vh;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      color: #fff;
       display: flex;
-      justify-content: center;
-      align-items: center;
       flex-direction: column;
-      background: linear-gradient(270deg, #b6d7a8, #c9daf8, #fce5cd);
-      background-size: 600% 600%;
-      animation: gradientShift 20s ease infinite;
-      color: #333;
-    }
-
-    @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+      transition: background 0.5s ease-in-out;
     }
 
     h1 {
-      font-size: 2em;
-      margin-bottom: 10px;
+      font-size: 2rem;
+      margin-bottom: 1rem;
     }
 
     button {
-      background: #6aa84f;
-      color: white;
+      background: #fff;
+      color: #2575fc;
       border: none;
-      padding: 12px 20px;
-      font-size: 1em;
-      border-radius: 5px;
+      padding: 10px 20px;
+      margin: 10px;
+      border-radius: 25px;
       cursor: pointer;
-      margin: 8px;
-      transition: background 0.3s ease;
+      font-size: 1.2rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 10px rgba(255,255,255,0.3);
     }
 
     button:hover {
-      background: #38761d;
+      background: #2575fc;
+      color: #fff;
+      transform: scale(1.05);
+      box-shadow: 0 0 15px #fff;
     }
 
-    #loginPopup, #dashboard {
+    select, input[type="text"] {
+      padding: 10px;
+      margin: 15px;
+      border-radius: 5px;
+      border: none;
+      font-size: 1rem;
+      width: 80%;
+      max-width: 300px;
+    }
+
+    .hidden {
       display: none;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      animation: fadeIn 1s ease forwards;
+    }
+
+    .section {
+      max-width: 600px;
+      padding: 20px;
+      margin-top: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      animation: fadeIn 0.8s ease-in-out;
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
+      from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    input {
-      padding: 10px;
-      margin: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      width: 200px;
-    }
-
-    #footer {
-      position: fixed;
-      bottom: 10px;
-      font-size: 0.9em;
-      opacity: 0;
-      animation: fadeInFooter 2s ease forwards;
-    }
-
-    @keyframes fadeInFooter {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    #footer a {
-      color: #1155cc;
-      text-decoration: none;
-    }
-
-    #motivation {
-      margin-top: 15px;
-      font-style: italic;
-      color: #444;
-    }
-
-    #popupMsg {
-      position: fixed;
-      top: 20px;
-      background: #dff0d8;
-      color: #3c763d;
-      padding: 10px 20px;
-      border-radius: 5px;
-      display: none;
+    footer {
+      margin-top: 40px;
+      font-size: 0.9rem;
+      color: #ddd;
     }
   </style>
 </head>
 <body>
-
-  <h1>Welcome to Your Digital Accountability Partner</h1>
-  <button onclick="showLogin()">Get Started</button>
-
-  <!-- Login Popup -->
-  <div id="loginPopup">
-    <h2>Login / Signup</h2>
-    <input type="text" id="username" placeholder="Enter your name">
-    <button onclick="login()">Enter</button>
+  <h1>Welcome to Habit Builder & Breaker</h1>
+  <div id="login-section" class="section">
+    <p>Enter your name to get started:</p>
+    <input type="text" id="username" placeholder="Your name">
+    <button onclick="startApp()">Start</button>
   </div>
 
-  <!-- Dashboard -->
-  <div id="dashboard">
-    <h2 id="greeting"></h2>
-    <p>Select your focus:</p>
-    <button onclick="setHabit('Quit Drugs')">Quit Drugs</button>
-    <button onclick="setHabit('Quit Porn')">Quit Porn</button>
-    <button onclick="setHabit('Stop Procrastination')">Stop Procrastination</button>
-    <button onclick="setHabit('Build Fitness')">Build Fitness</button>
-
-    <h3 id="habitTitle"></h3>
-    <p id="streak"></p>
-    <button onclick="showMotivation()">Daily Motivation</button>
-    <button onclick="resetStreak()">Reset Streak</button>
-    <button onclick="logout()">Log Out</button>
-    <p id="motivation"></p>
+  <div id="dashboard" class="section hidden">
+    <h2 id="welcome-message"></h2>
+    <p>Select what you want to do:</p>
+    <button onclick="showHabitSelector('bad')">Break a Bad Habit</button>
+    <button onclick="showHabitSelector('good')">Build a Good Habit</button>
   </div>
 
-  <div id="popupMsg">+1 day! Keep it up!</div>
-
-  <!-- Footer -->
-  <div id="footer">
-    Made by Jacob Okoth – Helping You Build Better Habits | 
-    <a href="mailto:jokkol506@gmail.com">jokkol506@gmail.com</a>
+  <div id="habit-selector" class="section hidden">
+    <h3 id="selector-title"></h3>
+    <select id="habit-dropdown">
+      <option value="">-- Select a Habit --</option>
+    </select>
+    <button onclick="loadHabit()">Show Steps</button>
   </div>
 
-  <audio id="ding" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg" preload="auto"></audio>
+  <div id="habit-guide" class="section hidden">
+    <h2 id="habit-title"></h2>
+    <p id="habit-description"></p>
+    <h3>Steps to Follow:</h3>
+    <ul id="habit-steps"></ul>
+    <div>
+      <h3>Your Streak: <span id="streak">0</span> days</h3>
+      <button onclick="incrementStreak()">I stayed on track today</button>
+    </div>
+    <button onclick="showTip()">Get Motivation</button>
+    <p id="tip" style="margin-top:10px;"></p>
+    <br>
+    <button onclick="goBack()">Back to Dashboard</button>
+  </div>
+
+  <footer>
+    Built by Jacob Okoth | jokkol506@gmail.com
+  </footer>
 
   <script>
-    const loginPopup = document.getElementById("loginPopup");
-    const dashboard = document.getElementById("dashboard");
-    const greeting = document.getElementById("greeting");
-    const habitTitle = document.getElementById("habitTitle");
-    const streakDisplay = document.getElementById("streak");
-    const motivationText = document.getElementById("motivation");
-    const dingSound = document.getElementById("ding");
-    const popupMsg = document.getElementById("popupMsg");
-
-    let username = "";
-    let habit = "";
-    let streak = parseInt(localStorage.getItem("streak")) || 1;
-    let lastVisit = localStorage.getItem("lastVisit") || "";
-
-    function showLogin() {
-      loginPopup.style.display = "flex";
-    }
-
-    function login() {
-      username = document.getElementById("username").value.trim();
-      if (username === "") return alert("Please enter your name.");
-      greeting.innerText = `Welcome, ${username}!`;
-      loginPopup.style.display = "none";
-      dashboard.style.display = "flex";
-      checkStreak();
-      dingSound.play();
-    }
-
-    function setHabit(selectedHabit) {
-      habit = selectedHabit;
-      habitTitle.innerText = `Focus: ${habit}`;
-      updateStreak();
-    }
-
-    function updateStreak() {
-      const today = new Date().toLocaleDateString();
-      streakDisplay.innerText = `Day ${streak} – ${today}`;
-    }
-
-    function checkStreak() {
-      const today = new Date().toLocaleDateString();
-      if (lastVisit && lastVisit !== today) {
-        const lastDate = new Date(lastVisit);
-        const todayDate = new Date(today);
-        const diffDays = Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24));
-        if (diffDays === 1) {
-          streak++;
-          localStorage.setItem("streak", streak);
-          popupMsg.style.display = "block";
-          dingSound.play();
-          setTimeout(() => { popupMsg.style.display = "none"; }, 2000);
-        } else {
-          streak = 1;
-          localStorage.setItem("streak", streak);
+    const habits = {
+      bad: {
+        "Smoking": {
+          description: "If you want to quit smoking, here’s how:",
+          steps: [
+            "Make it Obvious: Remove all cigarettes and lighters from your space.",
+            "Make it Unattractive: Look at health risks daily, remind yourself why you quit.",
+            "Make it Difficult: Avoid triggers like smoking friends or bars.",
+            "Make it Unsatisfying: Reward yourself for each smoke-free week."
+          ]
+        },
+        "Drugs": {
+          description: "If you want to quit drugs, here’s how:",
+          steps: [
+            "Make it Obvious: Cut off contacts who supply or use drugs.",
+            "Make it Unattractive: Watch addiction recovery stories or documentaries.",
+            "Make it Difficult: Stay busy with healthy activities and support groups.",
+            "Make it Unsatisfying: Share your progress publicly so relapse feels accountable."
+          ]
+        },
+        "Porn": {
+          description: "If you want to quit porn, here’s how:",
+          steps: [
+            "Make it Obvious: Install porn blockers and remove triggers.",
+            "Make it Unattractive: Read about the mental impact of overuse.",
+            "Make it Difficult: Use accountability apps or friends.",
+            "Make it Unsatisfying: Track streaks and reward milestones."
+          ]
+        },
+        "Overspending": {
+          description: "If you want to stop overspending, here’s how:",
+          steps: [
+            "Make it Obvious: Track all expenses daily.",
+            "Make it Unattractive: Visualize long-term debt impact.",
+            "Make it Difficult: Use cash only, leave cards at home.",
+            "Make it Unsatisfying: Share goals with a friend for accountability."
+          ]
+        },
+        "Procrastination": {
+          description: "If you want to stop procrastinating, here’s how:",
+          steps: [
+            "Make it Obvious: Break tasks into tiny parts you can start now.",
+            "Make it Unattractive: Picture the stress of last-minute work.",
+            "Make it Difficult: Use website blockers or set a strict schedule.",
+            "Make it Unsatisfying: Track progress publicly so quitting feels worse."
+          ]
+        },
+        "Junk Food": {
+          description: "If you want to quit junk food, here’s how:",
+          steps: [
+            "Make it Obvious: Remove unhealthy snacks from your house.",
+            "Make it Unattractive: Learn about obesity and health impacts.",
+            "Make it Difficult: Only carry healthy snacks, not money for junk.",
+            "Make it Unsatisfying: Reward yourself with non-food treats for eating healthy."
+          ]
         }
+        // (Add the remaining 14 bad habits here in the same format)
+      },
+      good: {
+        "Reading": {
+          description: "If you want to build a reading habit, here’s how:",
+          steps: [
+            "Make it Obvious: Keep your book by your bed or on your desk.",
+            "Make it Attractive: Choose books on topics you love.",
+            "Make it Easy: Start with just 5 pages a day.",
+            "Make it Satisfying: Track your pages and reward milestones."
+          ]
+        },
+        "Exercise": {
+          description: "If you want to build an exercise habit, here’s how:",
+          steps: [
+            "Make it Obvious: Set out workout clothes the night before.",
+            "Make it Attractive: Listen to music or podcasts you love while working out.",
+            "Make it Easy: Start with 10 minutes a day, no excuses.",
+            "Make it Satisfying: Celebrate every workout completed."
+          ]
+        },
+        "Journaling": {
+          description: "If you want to start journaling, here’s how:",
+          steps: [
+            "Make it Obvious: Leave your journal where you see it daily.",
+            "Make it Attractive: Use a nice notebook and pen you enjoy.",
+            "Make it Easy: Write just one sentence a day to start.",
+            "Make it Satisfying: Read past entries to see your growth."
+          ]
+        }
+        // (Add the remaining 27 good habits here in the same format)
       }
-      localStorage.setItem("lastVisit", today);
-      updateStreak();
+    };
+
+    function startApp() {
+      const name = document.getElementById('username').value || 'User';
+      document.getElementById('welcome-message').innerText = `Hello, ${name}!`;
+      document.getElementById('login-section').classList.add('hidden');
+      document.getElementById('dashboard').classList.remove('hidden');
     }
 
-    function showMotivation() {
+    function showHabitSelector(type) {
+      document.getElementById('dashboard').classList.add('hidden');
+      document.getElementById('habit-selector').classList.remove('hidden');
+      document.getElementById('selector-title').innerText = 
+        type === 'bad' ? 'Select a Bad Habit to Break:' : 'Select a Good Habit to Build:';
+
+      const dropdown = document.getElementById('habit-dropdown');
+      dropdown.innerHTML = '<option value="">-- Select a Habit --</option>';
+
+      Object.keys(habits[type]).forEach(habit => {
+        const opt = document.createElement('option');
+        opt.value = habit;
+        opt.textContent = habit;
+        dropdown.appendChild(opt);
+      });
+
+      dropdown.setAttribute('data-type', type);
+    }
+
+    function loadHabit() {
+      const dropdown = document.getElementById('habit-dropdown');
+      const habit = dropdown.value;
+      const type = dropdown.getAttribute('data-type');
+      if (!habit) return;
+
+      const habitData = habits[type][habit];
+      document.getElementById('habit-title').innerText = habit;
+      document.getElementById('habit-description').innerText = habitData.description;
+
+      const stepsList = document.getElementById('habit-steps');
+      stepsList.innerHTML = '';
+      habitData.steps.forEach(step => {
+        const li = document.createElement('li');
+        li.textContent = step;
+        stepsList.appendChild(li);
+      });
+
+      document.getElementById('habit-selector').classList.add('hidden');
+      document.getElementById('habit-guide').classList.remove('hidden');
+    }
+
+    function goBack() {
+      document.getElementById('habit-guide').classList.add('hidden');
+      document.getElementById('dashboard').classList.remove('hidden');
+    }
+
+    function incrementStreak() {
+      const streakEl = document.getElementById('streak');
+      let streak = parseInt(localStorage.getItem('habitStreak') || '0', 10);
+      streak++;
+      localStorage.setItem('habitStreak', streak);
+      streakEl.innerText = streak;
+    }
+
+    function showTip() {
       const tips = [
-        "Small steps every day lead to big changes.",
-        "Focus on progress, not perfection.",
-        "You’re stronger than your cravings.",
-        "Discipline now, freedom later.",
-        "Your future self will thank you."
+        "Small steps every day create big change.",
+        "Progress, not perfection, matters.",
+        "Consistency beats motivation every time.",
+        "Each day is a new chance to start fresh."
       ];
-      const randomTip = tips[Math.floor(Math.random() * tips.length)];
-      motivationText.innerText = randomTip;
-      dingSound.play();
+      document.getElementById('tip').innerText = 
+        tips[Math.floor(Math.random() * tips.length)];
     }
 
-    function resetStreak() {
-      if (confirm("Are you sure you want to reset your streak?")) {
-        streak = 1;
-        localStorage.setItem("streak", streak);
-        updateStreak();
-      }
-    }
-
-    function logout() {
-      dashboard.style.display = "none";
-      loginPopup.style.display = "flex";
-      dingSound.play();
-    }
+    window.onload = () => {
+      const streak = localStorage.getItem('habitStreak') || '0';
+      document.getElementById('streak').innerText = streak;
+    };
   </script>
 </body>
-  </html>
+</html>
+
