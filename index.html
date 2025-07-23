@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Habit Builder & Breaker</title>
+  <title>Habit Builder by Jacob</title>
   <style>
     * {
       margin: 0;
@@ -11,289 +11,558 @@
       box-sizing: border-box;
       font-family: Arial, sans-serif;
     }
-
     body {
-      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      background: linear-gradient(to right, #6a11cb, #2575fc);
       color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
       min-height: 100vh;
-      text-align: center;
-      transition: background 0.5s ease-in-out;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 20px;
     }
-
     h1 {
       font-size: 2rem;
-      margin-bottom: 1rem;
+      margin-bottom: 20px;
+      text-align: center;
     }
-
-    button {
-      background: #fff;
-      color: #2575fc;
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 15px;
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      animation: fadeIn 0.6s ease;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
       border: none;
-      padding: 10px 20px;
-      margin: 10px;
-      border-radius: 25px;
-      cursor: pointer;
-      font-size: 1.2rem;
-      transition: all 0.3s ease;
-      box-shadow: 0 0 10px rgba(255,255,255,0.3);
-    }
-
-    button:hover {
-      background: #2575fc;
-      color: #fff;
-      transform: scale(1.05);
-      box-shadow: 0 0 15px #fff;
-    }
-
-    select, input[type="text"] {
-      padding: 10px;
-      margin: 15px;
-      border-radius: 5px;
-      border: none;
+      border-radius: 8px;
       font-size: 1rem;
-      width: 80%;
-      max-width: 300px;
     }
-
+    input, select {
+      background: #fff;
+      color: #333;
+    }
+    button {
+      background: #ff7eb3;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #ff5277;
+    }
     .hidden {
       display: none;
     }
-
-    .section {
-      max-width: 600px;
-      padding: 20px;
-      margin-top: 20px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 15px;
-      animation: fadeIn 0.8s ease-in-out;
+    .steps {
+      margin-top: 15px;
+      text-align: left;
     }
-
+    .steps li {
+      margin-bottom: 10px;
+    }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
-
-    footer {
-      margin-top: 40px;
-      font-size: 0.9rem;
-      color: #ddd;
-    }
   </style>
 </head>
 <body>
-  <h1>Welcome to Habit Builder & Breaker</h1>
-  <div id="login-section" class="section">
-    <p>Enter your name to get started:</p>
-    <input type="text" id="username" placeholder="Your name">
-    <button onclick="startApp()">Start</button>
+
+  <h1>Habit Builder</h1>
+
+  <!-- Login -->
+  <div class="card" id="loginCard">
+    <h2>Login</h2>
+    <input type="text" id="username" placeholder="Enter username">
+    <input type="password" id="password" placeholder="Enter password">
+    <button onclick="login()">Login</button>
+    <button onclick="showSignup()">Create Account</button>
   </div>
 
-  <div id="dashboard" class="section hidden">
-    <h2 id="welcome-message"></h2>
-    <p>Select what you want to do:</p>
-    <button onclick="showHabitSelector('bad')">Break a Bad Habit</button>
-    <button onclick="showHabitSelector('good')">Build a Good Habit</button>
+  <!-- Signup -->
+  <div class="card hidden" id="signupCard">
+    <h2>Sign Up</h2>
+    <input type="text" id="newUsername" placeholder="Create username">
+    <input type="password" id="newPassword" placeholder="Create password">
+    <button onclick="signup()">Sign Up</button>
+    <button onclick="showLogin()">Back to Login</button>
   </div>
 
-  <div id="habit-selector" class="section hidden">
-    <h3 id="selector-title"></h3>
-    <select id="habit-dropdown">
-      <option value="">-- Select a Habit --</option>
+  <!-- Dashboard -->
+  <div class="card hidden" id="dashboard">
+    <h2>Select a Habit</h2>
+    <select id="habitType" onchange="loadHabits()">
+      <option value="">-- Choose Habit Type --</option>
+      <option value="good">Good Habits (Build)</option>
+      <option value="bad">Bad Habits (Break)</option>
     </select>
-    <button onclick="loadHabit()">Show Steps</button>
-  </div>
-
-  <div id="habit-guide" class="section hidden">
-    <h2 id="habit-title"></h2>
-    <p id="habit-description"></p>
-    <h3>Steps to Follow:</h3>
-    <ul id="habit-steps"></ul>
-    <div>
-      <h3>Your Streak: <span id="streak">0</span> days</h3>
-      <button onclick="incrementStreak()">I stayed on track today</button>
+    <select id="habitList" onchange="showHabitDetails()">
+      <option value="">-- Choose a Habit --</option>
+    </select>
+    <div id="habitDetails" class="hidden">
+      <h3 id="habitTitle"></h3>
+      <p id="habitDescription"></p>
+      <ul class="steps" id="habitSteps"></ul>
     </div>
-    <button onclick="showTip()">Get Motivation</button>
-    <p id="tip" style="margin-top:10px;"></p>
-    <br>
-    <button onclick="goBack()">Back to Dashboard</button>
+    <button onclick="logout()">Logout</button>
   </div>
-
-  <footer>
-    Built by Jacob Okoth | jokkol506@gmail.com
-  </footer>
 
   <script>
+    const users = {};
+
+    function showSignup() {
+      document.getElementById("loginCard").classList.add("hidden");
+      document.getElementById("signupCard").classList.remove("hidden");
+    }
+    function showLogin() {
+      document.getElementById("signupCard").classList.add("hidden");
+      document.getElementById("loginCard").classList.remove("hidden");
+    }
+    function signup() {
+      const user = document.getElementById("newUsername").value;
+      const pass = document.getElementById("newPassword").value;
+      if (user && pass) {
+        users[user] = pass;
+        alert("Account created! Please log in.");
+        showLogin();
+      } else {
+        alert("Fill all fields");
+      }
+    }
+    function login() {
+      const user = document.getElementById("username").value;
+      const pass = document.getElementById("password").value;
+      if (users[user] && users[user] === pass) {
+        document.getElementById("loginCard").classList.add("hidden");
+        document.getElementById("dashboard").classList.remove("hidden");
+      } else {
+        alert("Invalid login. Sign up first.");
+      }
+    }
+    function logout() {
+      document.getElementById("dashboard").classList.add("hidden");
+      document.getElementById("loginCard").classList.remove("hidden");
+    }
+
     const habits = {
       bad: {
+        "Drug Addiction": {
+          description: "If you want to break drug addiction, here’s how: Recovery means avoiding triggers and building new routines that make drugs unattractive and hard to access.",
+          steps: [
+            "Make it Invisible: Avoid people, places, and things connected to use.",
+            "Make it Unattractive: Learn the long-term brain, body, and financial damage.",
+            "Make it Difficult: Cut off supply sources and build accountability walls.",
+            "Make it Unsatisfying: Track relapses honestly and work with a sponsor or group."
+          ]
+        },
+        "Porn Addiction": {
+          description: "If you want to quit porn, here’s how: Focus on rewiring your brain and removing access to triggers.",
+          steps: [
+            "Make it Invisible: Install blockers and remove access to private browsing.",
+            "Make it Unattractive: Understand how porn harms focus and relationships.",
+            "Make it Difficult: Restrict devices during temptation hours.",
+            "Make it Unsatisfying: Use accountability partners and track your streak."
+          ]
+        },
         "Smoking": {
-          description: "If you want to quit smoking, here’s how:",
+          description: "If you want to quit smoking, here’s how: Break cues, crush cravings, and replace rituals.",
           steps: [
-            "Make it Obvious: Remove all cigarettes and lighters from your space.",
-            "Make it Unattractive: Look at health risks daily, remind yourself why you quit.",
-            "Make it Difficult: Avoid triggers like smoking friends or bars.",
-            "Make it Unsatisfying: Reward yourself for each smoke-free week."
+            "Make it Invisible: Remove cigarettes and lighters from sight.",
+            "Make it Unattractive: Learn the health and financial costs.",
+            "Make it Difficult: Avoid smoking spots and delay cravings.",
+            "Make it Unsatisfying: Track progress and commit publicly."
           ]
         },
-        "Drugs": {
-          description: "If you want to quit drugs, here’s how:",
+        "Excessive Drinking": {
+          description: "If you want to reduce alcohol use, here’s how: Build barriers, change environments, and replace habits.",
           steps: [
-            "Make it Obvious: Cut off contacts who supply or use drugs.",
-            "Make it Unattractive: Watch addiction recovery stories or documentaries.",
-            "Make it Difficult: Stay busy with healthy activities and support groups.",
-            "Make it Unsatisfying: Share your progress publicly so relapse feels accountable."
-          ]
-        },
-        "Porn": {
-          description: "If you want to quit porn, here’s how:",
-          steps: [
-            "Make it Obvious: Install porn blockers and remove triggers.",
-            "Make it Unattractive: Read about the mental impact of overuse.",
-            "Make it Difficult: Use accountability apps or friends.",
-            "Make it Unsatisfying: Track streaks and reward milestones."
-          ]
-        },
-        "Overspending": {
-          description: "If you want to stop overspending, here’s how:",
-          steps: [
-            "Make it Obvious: Track all expenses daily.",
-            "Make it Unattractive: Visualize long-term debt impact.",
-            "Make it Difficult: Use cash only, leave cards at home.",
-            "Make it Unsatisfying: Share goals with a friend for accountability."
+            "Make it Invisible: Remove alcohol from your home.",
+            "Make it Unattractive: List the effects on health, sleep, and relationships.",
+            "Make it Difficult: Only drink socially with strict limits.",
+            "Make it Unsatisfying: Share progress with friends and mentors."
           ]
         },
         "Procrastination": {
-          description: "If you want to stop procrastinating, here’s how:",
+          description: "If you want to stop procrastination, here’s how: Remove distractions and make action easier than delay.",
           steps: [
-            "Make it Obvious: Break tasks into tiny parts you can start now.",
-            "Make it Unattractive: Picture the stress of last-minute work.",
-            "Make it Difficult: Use website blockers or set a strict schedule.",
-            "Make it Unsatisfying: Track progress publicly so quitting feels worse."
+            "Make it Invisible: Block social media and distracting apps.",
+            "Make it Unattractive: Visualize stress caused by unfinished work.",
+            "Make it Difficult: Use timers and commit deadlines to others.",
+            "Make it Unsatisfying: Reward only after completing important work."
           ]
         },
-        "Junk Food": {
-          description: "If you want to quit junk food, here’s how:",
+        "Overeating Junk Food": {
+          description: "If you want to cut junk food, here’s how: Reshape your kitchen and cravings.",
           steps: [
-            "Make it Obvious: Remove unhealthy snacks from your house.",
-            "Make it Unattractive: Learn about obesity and health impacts.",
-            "Make it Difficult: Only carry healthy snacks, not money for junk.",
-            "Make it Unsatisfying: Reward yourself with non-food treats for eating healthy."
+            "Make it Invisible: Remove junk food from your house.",
+            "Make it Unattractive: Learn the effect of sugar and processed foods.",
+            "Make it Difficult: Only buy healthy snacks and cook at home.",
+            "Make it Unsatisfying: Track meals and review when you slip."
+          ]
+        },
+        "Gambling": {
+          description: "If you want to stop gambling, here’s how: Break the cycle of risk and create new excitement sources.",
+          steps: [
+            "Make it Invisible: Block gambling sites and avoid casinos.",
+            "Make it Unattractive: Learn the odds and how the house always wins.",
+            "Make it Difficult: Hand over financial control to a trusted person.",
+            "Make it Unsatisfying: Join a recovery group and track your streak."
+          ]
+        },
+        "Risky Sexual Behavior": {
+          description: "If you want to avoid risky sexual habits, here’s how: Build awareness of risks and reduce temptations.",
+          steps: [
+            "Make it Invisible: Avoid parties, websites, or people that trigger behavior.",
+            "Make it Unattractive: Educate yourself about STIs and consequences.",
+            "Make it Difficult: Use public settings for dates, avoid isolation.",
+            "Make it Unsatisfying: Reflect on the risks and track progress."
+          ]
+        },
+        "Nail Biting": {
+          description: "If you want to stop nail biting, here’s how: Remove triggers and make the habit unpleasant.",
+          steps: [
+            "Make it Invisible: Keep nails trimmed and filed.",
+            "Make it Unattractive: Apply bitter-tasting nail solutions.",
+            "Make it Difficult: Wear gloves or use fidget tools.",
+            "Make it Unsatisfying: Track your progress and celebrate clean nails."
+          ]
+        },
+        "Excessive Screen Time": {
+          description: "If you want to reduce screen time, here’s how: Limit temptations and schedule offline rewards.",
+          steps: [
+            "Make it Invisible: Move distracting apps off your home screen.",
+            "Make it Unattractive: Track wasted time and lost sleep.",
+            "Make it Difficult: Use app timers or grayscale mode.",
+            "Make it Unsatisfying: Only allow fun apps after completing work."
+          ]
+        },
+        "Negative Self-Talk": {
+          description: "If you want to stop negative self-talk, here’s how: Reframe thoughts and cut toxic inputs.",
+          steps: [
+            "Make it Invisible: Limit exposure to negativity (toxic media or people).",
+            "Make it Unattractive: Recognize how negativity drains confidence.",
+            "Make it Difficult: Replace with gratitude journaling.",
+            "Make it Unsatisfying: Correct yourself aloud when negative thoughts arise."
+          ]
+        },
+        "Lateness": {
+          description: "If you want to stop being late, here’s how: Remove triggers and make punctuality automatic.",
+          steps: [
+            "Make it Invisible: Avoid distractions before leaving.",
+            "Make it Unattractive: Realize how lateness damages relationships.",
+            "Make it Difficult: Set alarms 30 minutes early.",
+            "Make it Unsatisfying: Track days you’re late and correct patterns."
+          ]
+        },
+        "Impulse Shopping": {
+          description: "If you want to stop impulse spending, here’s how: Build friction before every purchase.",
+          steps: [
+            "Make it Invisible: Unsubscribe from store emails and ads.",
+            "Make it Unattractive: List how impulse buying hurts your goals.",
+            "Make it Difficult: Wait 24 hours before any purchase.",
+            "Make it Unsatisfying: Track unnecessary spending publicly."
+          ]
+        },
+        "Sleeping Late": {
+          description: "If you want to sleep earlier, here’s how: Control environment and reset your rhythm.",
+          steps: [
+            "Make it Invisible: Remove screens 1 hour before bed.",
+            "Make it Unattractive: Realize the cost on health and energy.",
+            "Make it Difficult: Dim lights and keep a strict bedtime.",
+            "Make it Unsatisfying: Track nights you stay up late and note consequences."
+          ]
+        },
+        "Gossiping": {
+          description: "If you want to stop gossiping, here’s how: Redirect conversations and track triggers.",
+          steps: [
+            "Make it Invisible: Avoid gossip-heavy groups.",
+            "Make it Unattractive: Realize gossip damages trust.",
+            "Make it Difficult: Change the subject to positive topics.",
+            "Make it Unsatisfying: Apologize each time you gossip."
+          ]
+        },
+        "Overthinking": {
+          description: "If you want to stop overthinking, here’s how: Train your mind to focus on action, not loops.",
+          steps: [
+            "Make it Invisible: Limit idle time alone.",
+            "Make it Unattractive: Recognize how it fuels anxiety.",
+            "Make it Difficult: Journal thoughts instead of ruminating.",
+            "Make it Unsatisfying: Take a physical action each time you spiral."
+          ]
+        },
+        "Overcommitting": {
+          description: "If you want to stop saying yes to everything, here’s how: Build boundaries and learn to pause.",
+          steps: [
+            "Make it Invisible: Avoid automatically agreeing to requests.",
+            "Make it Unattractive: Reflect on burnout and stress it causes.",
+            "Make it Difficult: Say 'I’ll think about it' instead of yes.",
+            "Make it Unsatisfying: Track how often overcommitment drains you."
+          ]
+        },
+        "Fast Food Dependency": {
+          description: "If you want to stop eating fast food, here’s how: Reshape choices and cook simple meals.",
+          steps: [
+            "Make it Invisible: Avoid routes with fast food stops.",
+            "Make it Unattractive: Learn the true calorie and cost impact.",
+            "Make it Difficult: Meal prep easy healthy options.",
+            "Make it Unsatisfying: Track each time you skip cooking."
+          ]
+        },
+        "Video Game Addiction": {
+          description: "If you want to reduce gaming, here’s how: Build real-world engagement and add friction.",
+          steps: [
+            "Make it Invisible: Remove consoles from the bedroom.",
+            "Make it Unattractive: Track hours lost weekly.",
+            "Make it Difficult: Limit playtime with timers.",
+            "Make it Unsatisfying: Only allow play after completing priorities."
           ]
         }
-        // (Add the remaining 14 bad habits here in the same format)
       },
-      good: {
-        "Reading": {
-          description: "If you want to build a reading habit, here’s how:",
-          steps: [
-            "Make it Obvious: Keep your book by your bed or on your desk.",
-            "Make it Attractive: Choose books on topics you love.",
-            "Make it Easy: Start with just 5 pages a day.",
-            "Make it Satisfying: Track your pages and reward milestones."
-          ]
-        },
-        "Exercise": {
-          description: "If you want to build an exercise habit, here’s how:",
-          steps: [
-            "Make it Obvious: Set out workout clothes the night before.",
-            "Make it Attractive: Listen to music or podcasts you love while working out.",
-            "Make it Easy: Start with 10 minutes a day, no excuses.",
-            "Make it Satisfying: Celebrate every workout completed."
-          ]
-        },
-        "Journaling": {
-          description: "If you want to start journaling, here’s how:",
-          steps: [
-            "Make it Obvious: Leave your journal where you see it daily.",
-            "Make it Attractive: Use a nice notebook and pen you enjoy.",
-            "Make it Easy: Write just one sentence a day to start.",
-            "Make it Satisfying: Read past entries to see your growth."
-          ]
-        }
-        // (Add the remaining 27 good habits here in the same format)
+
+      good: { } // Will be filled in Part 2
+    };
+
+    function loadHabits() {
+      const type = document.getElementById("habitType").value;
+      const list = document.getElementById("habitList");
+      list.innerHTML = '<option value="">-- Choose a Habit --</option>';
+      if (type) {
+        Object.keys(habits[type]).forEach(h => {
+          const opt = document.createElement("option");
+          opt.value = h;
+          opt.textContent = h;
+          list.appendChild(opt);
+        });
       }
-    };
-
-    function startApp() {
-      const name = document.getElementById('username').value || 'User';
-      document.getElementById('welcome-message').innerText = `Hello, ${name}!`;
-      document.getElementById('login-section').classList.add('hidden');
-      document.getElementById('dashboard').classList.remove('hidden');
+      document.getElementById("habitDetails").classList.add("hidden");
     }
 
-    function showHabitSelector(type) {
-      document.getElementById('dashboard').classList.add('hidden');
-      document.getElementById('habit-selector').classList.remove('hidden');
-      document.getElementById('selector-title').innerText = 
-        type === 'bad' ? 'Select a Bad Habit to Break:' : 'Select a Good Habit to Build:';
-
-      const dropdown = document.getElementById('habit-dropdown');
-      dropdown.innerHTML = '<option value="">-- Select a Habit --</option>';
-
-      Object.keys(habits[type]).forEach(habit => {
-        const opt = document.createElement('option');
-        opt.value = habit;
-        opt.textContent = habit;
-        dropdown.appendChild(opt);
-      });
-
-      dropdown.setAttribute('data-type', type);
+    function showHabitDetails() {
+      const type = document.getElementById("habitType").value;
+      const habit = document.getElementById("habitList").value;
+      if (habit) {
+        const data = habits[type][habit];
+        document.getElementById("habitTitle").textContent = habit;
+        document.getElementById("habitDescription").textContent = data.description;
+        const stepsList = document.getElementById("habitSteps");
+        stepsList.innerHTML = "";
+        data.steps.forEach(step => {
+          const li = document.createElement("li");
+          li.textContent = step;
+          stepsList.appendChild(li);
+        });
+        document.getElementById("habitDetails").classList.remove("hidden");
+      }
     }
-
-    function loadHabit() {
-      const dropdown = document.getElementById('habit-dropdown');
-      const habit = dropdown.value;
-      const type = dropdown.getAttribute('data-type');
-      if (!habit) return;
-
-      const habitData = habits[type][habit];
-      document.getElementById('habit-title').innerText = habit;
-      document.getElementById('habit-description').innerText = habitData.description;
-
-      const stepsList = document.getElementById('habit-steps');
-      stepsList.innerHTML = '';
-      habitData.steps.forEach(step => {
-        const li = document.createElement('li');
-        li.textContent = step;
-        stepsList.appendChild(li);
-      });
-
-      document.getElementById('habit-selector').classList.add('hidden');
-      document.getElementById('habit-guide').classList.remove('hidden');
-    }
-
-    function goBack() {
-      document.getElementById('habit-guide').classList.add('hidden');
-      document.getElementById('dashboard').classList.remove('hidden');
-    }
-
-    function incrementStreak() {
-      const streakEl = document.getElementById('streak');
-      let streak = parseInt(localStorage.getItem('habitStreak') || '0', 10);
-      streak++;
-      localStorage.setItem('habitStreak', streak);
-      streakEl.innerText = streak;
-    }
-
-    function showTip() {
-      const tips = [
-        "Small steps every day create big change.",
-        "Progress, not perfection, matters.",
-        "Consistency beats motivation every time.",
-        "Each day is a new chance to start fresh."
-      ];
-      document.getElementById('tip').innerText = 
-        tips[Math.floor(Math.random() * tips.length)];
-    }
-
-    window.onload = () => {
-      const streak = localStorage.getItem('habitStreak') || '0';
-      document.getElementById('streak').innerText = streak;
-    };
   </script>
 </body>
 </html>
+// --- Add these good habits to the habits object ---
+habits.good = {
+  "Reading Daily": {
+    description: "If you want to build a reading habit, here’s how: Make books part of your environment and daily flow so reading becomes natural.",
+    steps: [
+      "Make it Obvious: Keep a book by your bed, desk, or bag.",
+      "Make it Attractive: Read topics you genuinely enjoy first.",
+      "Make it Easy: Start with 2 pages a day, not 50.",
+      "Make it Satisfying: Track books read and reward milestones."
+    ]
+  },
+  "Morning Exercise": {
+    description: "If you want to exercise every morning, here’s how: Lower the barriers and make movement rewarding.",
+    steps: [
+      "Make it Obvious: Lay out workout clothes the night before.",
+      "Make it Attractive: Pick music or a routine you enjoy.",
+      "Make it Easy: Start with 5–10 minutes, not a full workout.",
+      "Make it Satisfying: Log every session for a streak."
+    ]
+  },
+  "Daily Journaling": {
+    description: "If you want to journal daily, here’s how: Create a ritual and remove friction.",
+    steps: [
+      "Make it Obvious: Keep your journal by your pillow or desk.",
+      "Make it Attractive: Use a nice notebook or app you enjoy.",
+      "Make it Easy: Write just 3 bullet points daily.",
+      "Make it Satisfying: Revisit old entries weekly for motivation."
+    ]
+  },
+  "Healthy Eating": {
+    description: "If you want to eat healthy, here’s how: Change your environment and habits so healthy food becomes the default.",
+    steps: [
+      "Make it Obvious: Keep fruits and water on the counter.",
+      "Make it Attractive: Learn quick, tasty recipes.",
+      "Make it Easy: Prep meals in advance.",
+      "Make it Satisfying: Celebrate healthy streaks with a treat (non-food)."
+    ]
+  },
+  "Meditation": {
+    description: "If you want to meditate daily, here’s how: Anchor it to something you already do.",
+    steps: [
+      "Make it Obvious: Sit in the same spot each time.",
+      "Make it Attractive: Use calming music or apps.",
+      "Make it Easy: Start with 2 minutes, then build.",
+      "Make it Satisfying: Track your calm streaks."
+    ]
+  },
+  "Drinking More Water": {
+    description: "If you want to drink more water, here’s how: Make water the easiest, most appealing choice.",
+    steps: [
+      "Make it Obvious: Keep a bottle with you everywhere.",
+      "Make it Attractive: Add slices of lemon or fruit.",
+      "Make it Easy: Sip a glass with every meal.",
+      "Make it Satisfying: Track daily intake with a simple chart."
+    ]
+  },
+  "Learning a New Skill": {
+    description: "If you want to master a new skill, here’s how: Make learning consistent and fun.",
+    steps: [
+      "Make it Obvious: Schedule learning in your calendar.",
+      "Make it Attractive: Pick topics you enjoy first.",
+      "Make it Easy: Start with 10 minutes per day.",
+      "Make it Satisfying: Show progress weekly (to a friend or online)."
+    ]
+  },
+  "Saving Money": {
+    description: "If you want to save more money, here’s how: Automate and visualize your progress.",
+    steps: [
+      "Make it Obvious: Use a savings app or jar.",
+      "Make it Attractive: Name your savings goal (like ‘Vacation’).",
+      "Make it Easy: Auto-transfer small amounts weekly.",
+      "Make it Satisfying: Watch your balance grow."
+    ]
+  },
+  "Early Rising": {
+    description: "If you want to wake up early, here’s how: Reset your sleep triggers and cues.",
+    steps: [
+      "Make it Obvious: Put your alarm across the room.",
+      "Make it Attractive: Plan a reward for mornings (music, coffee).",
+      "Make it Easy: Sleep earlier 15 minutes each night.",
+      "Make it Satisfying: Track how early mornings boost your day."
+    ]
+  },
+  "Gratitude Practice": {
+    description: "If you want to be more grateful, here’s how: Make gratitude automatic.",
+    steps: [
+      "Make it Obvious: Keep a small gratitude journal by your bed.",
+      "Make it Attractive: Share gratitude with friends/family.",
+      "Make it Easy: Write just 1 thing each night.",
+      "Make it Satisfying: Read old entries on bad days."
+    ]
+  },
+  "Time Blocking": {
+    description: "If you want to manage your time better, here’s how: Plan days visually.",
+    steps: [
+      "Make it Obvious: Use a calendar for work and breaks.",
+      "Make it Attractive: Add breaks and rewards.",
+      "Make it Easy: Block just one task first.",
+      "Make it Satisfying: Check off completed blocks."
+    ]
+  },
+  "Stretching": {
+    description: "If you want to stretch daily, here’s how: Link it to something you already do.",
+    steps: [
+      "Make it Obvious: Stretch right after brushing your teeth.",
+      "Make it Attractive: Play relaxing music.",
+      "Make it Easy: Start with 2 stretches per day.",
+      "Make it Satisfying: Track flexibility improvements weekly."
+    ]
+  },
+  "Cooking at Home": {
+    description: "If you want to cook more, here’s how: Make it simple and fun.",
+    steps: [
+      "Make it Obvious: Plan meals every Sunday.",
+      "Make it Attractive: Try one fun recipe weekly.",
+      "Make it Easy: Prep ingredients ahead.",
+      "Make it Satisfying: Share meals with others."
+    ]
+  },
+  "Spending Time with Family": {
+    description: "If you want to connect more with family, here’s how: Build rituals around time together.",
+    steps: [
+      "Make it Obvious: Set weekly family meals.",
+      "Make it Attractive: Plan fun group activities.",
+      "Make it Easy: Start with one evening a week.",
+      "Make it Satisfying: Capture and revisit memories."
+    ]
+  },
+  "Networking": {
+    description: "If you want to network regularly, here’s how: Make outreach a habit.",
+    steps: [
+      "Make it Obvious: Schedule one call or coffee weekly.",
+      "Make it Attractive: Connect with people you admire.",
+      "Make it Easy: Send a quick friendly message.",
+      "Make it Satisfying: Celebrate each new connection."
+    ]
+  },
+  "Cleaning Daily": {
+    description: "If you want to keep your space clean, here’s how: Turn cleaning into a micro-habit.",
+    steps: [
+      "Make it Obvious: Keep cleaning tools accessible.",
+      "Make it Attractive: Play music while cleaning.",
+      "Make it Easy: Clean just 5 minutes a day.",
+      "Make it Satisfying: Admire your tidy space."
+    ]
+  },
+  "Daily Walks": {
+    description: "If you want to walk daily, here’s how: Tie it to something automatic.",
+    steps: [
+      "Make it Obvious: Walk right after lunch or dinner.",
+      "Make it Attractive: Listen to music or a podcast.",
+      "Make it Easy: Start with 5–10 minutes.",
+      "Make it Satisfying: Track your steps each day."
+    ]
+  },
+  "Limiting Social Media": {
+    description: "If you want to cut social media, here’s how: Make usage mindful.",
+    steps: [
+      "Make it Obvious: Set specific app times.",
+      "Make it Attractive: Replace with hobbies or reading.",
+      "Make it Easy: Remove social apps from your home screen.",
+      "Make it Satisfying: Track hours saved weekly."
+    ]
+  },
+  "Practicing a Language": {
+    description: "If you want to learn a new language, here’s how: Build a streak and make it fun.",
+    steps: [
+      "Make it Obvious: Do it right after breakfast.",
+      "Make it Attractive: Use gamified apps or music.",
+      "Make it Easy: Start with 5 words per day.",
+      "Make it Satisfying: Track streaks publicly."
+    ]
+  },
+  "Side Hustle Work": {
+    description: "If you want to grow a side hustle, here’s how: Schedule it like a job.",
+    steps: [
+      "Make it Obvious: Block a fixed time daily.",
+      "Make it Attractive: Connect it to your personal goals.",
+      "Make it Easy: Work in 25-minute focus bursts.",
+      "Make it Satisfying: Celebrate small wins weekly."
+    ]
+  },
+  // Add 10 more quick habits similarly for 30 total
+};
 
+// Add the rest of the 10 habits (simplified to save space)
+const moreGoodHabits = {
+  "Mindful Breathing": { description: "Practice deep breathing to reduce stress.", steps: ["Make it Obvious: Do it before sleep.", "Make it Attractive: Play calm sounds.", "Make it Easy: Start with 3 breaths.", "Make it Satisfying: Track relaxation level."] },
+  "Daily Planning": { description: "Plan your day each morning.", steps: ["Make it Obvious: Keep a planner nearby.", "Make it Attractive: Use colorful pens.", "Make it Easy: Start with top 3 tasks.", "Make it Satisfying: Check off each task."] },
+  "Complimenting Others": { description: "Boost relationships by giving genuine compliments.", steps: ["Make it Obvious: Do it during every interaction.", "Make it Attractive: Notice good traits in people.", "Make it Easy: Say one kind thing daily.", "Make it Satisfying: Track positive reactions."] },
+  "Learning Finance": { description: "Learn basic money skills daily.", steps: ["Make it Obvious: Read 5 mins of finance daily.", "Make it Attractive: Focus on improving income.", "Make it Easy: Start with small lessons.", "Make it Satisfying: Track money saved."] },
+  "Mindfulness Breaks": { description: "Take a mindful pause every day.", steps: ["Make it Obvious: Set a reminder.", "Make it Attractive: Go outdoors.", "Make it Easy: Start with 1 minute.", "Make it Satisfying: Journal calm feelings."] },
+  "Random Acts of Kindness": { description: "Do small kind acts to uplift others.", steps: ["Make it Obvious: Carry extra change or help.", "Make it Attractive: See the joy in others.", "Make it Easy: Do one act daily.", "Make it Satisfying: Write down what you did."] },
+  "Limiting Sugar": { description: "Reduce sugar intake gradually.", steps: ["Make it Obvious: Remove sodas.", "Make it Attractive: Learn healthy recipes.", "Make it Easy: Replace sugar with fruit.", "Make it Satisfying: Track how you feel."] },
+  "Daily Affirmations": { description: "Repeat positive affirmations.", steps: ["Make it Obvious: Write them on your mirror.", "Make it Attractive: Say them with music.", "Make it Easy: Start with 3 statements.", "Make it Satisfying: Reflect on changes weekly."] },
+  "Strength Training": { description: "Do short strength sessions at home.", steps: ["Make it Obvious: Keep dumbbells nearby.", "Make it Attractive: Play high-energy music.", "Make it Easy: Start with 5 pushups daily.", "Make it Satisfying: Track body strength gains."] },
+  "Networking Online": { description: "Build your professional network digitally.", steps: ["Make it Obvious: Send 1 LinkedIn message daily.", "Make it Attractive: Connect with inspiring people.", "Make it Easy: Start with a friendly note.", "Make it Satisfying: Track responses weekly."] }
+};
+
+// Merge them
+Object.assign(habits.good, moreGoodHabits);
