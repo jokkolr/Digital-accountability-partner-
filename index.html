@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Accountability Partner</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      background: linear-gradient(270deg, #b6d7a8, #c9daf8, #fce5cd);
+      background-size: 600% 600%;
+      animation: gradientShift 20s ease infinite;
+      color: #333;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    h1 {
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+
+    button {
+      background: #6aa84f;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 1em;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 8px;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #38761d;
+    }
+
+    #loginPopup, #dashboard {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      animation: fadeIn 1s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    input {
+      padding: 10px;
+      margin: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      width: 200px;
+    }
+
+    #footer {
+      position: fixed;
+      bottom: 10px;
+      font-size: 0.9em;
+      opacity: 0;
+      animation: fadeInFooter 2s ease forwards;
+    }
+
+    @keyframes fadeInFooter {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    #footer a {
+      color: #1155cc;
+      text-decoration: none;
+    }
+
+    #motivation {
+      margin-top: 15px;
+      font-style: italic;
+      color: #444;
+    }
+
+    #popupMsg {
+      position: fixed;
+      top: 20px;
+      background: #dff0d8;
+      color: #3c763d;
+      padding: 10px 20px;
+      border-radius: 5px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Welcome to Your Digital Accountability Partner</h1>
+  <button onclick="showLogin()">Get Started</button>
+
+  <!-- Login Popup -->
+  <div id="loginPopup">
+    <h2>Login / Signup</h2>
+    <input type="text" id="username" placeholder="Enter your name">
+    <button onclick="login()">Enter</button>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboard">
+    <h2 id="greeting"></h2>
+    <p>Select your focus:</p>
+    <button onclick="setHabit('Quit Drugs')">Quit Drugs</button>
+    <button onclick="setHabit('Quit Porn')">Quit Porn</button>
+    <button onclick="setHabit('Stop Procrastination')">Stop Procrastination</button>
+    <button onclick="setHabit('Build Fitness')">Build Fitness</button>
+
+    <h3 id="habitTitle"></h3>
+    <p id="streak"></p>
+    <button onclick="showMotivation()">Daily Motivation</button>
+    <button onclick="resetStreak()">Reset Streak</button>
+    <button onclick="logout()">Log Out</button>
+    <p id="motivation"></p>
+  </div>
+
+  <div id="popupMsg">+1 day! Keep it up!</div>
+
+  <!-- Footer -->
+  <div id="footer">
+    Made by Jacob Okoth – Helping You Build Better Habits | 
+    <a href="mailto:jokkol506@gmail.com">jokkol506@gmail.com</a>
+  </div>
+
+  <audio id="ding" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg" preload="auto"></audio>
+
+  <script>
+    const loginPopup = document.getElementById("loginPopup");
+    const dashboard = document.getElementById("dashboard");
+    const greeting = document.getElementById("greeting");
+    const habitTitle = document.getElementById("habitTitle");
+    const streakDisplay = document.getElementById("streak");
+    const motivationText = document.getElementById("motivation");
+    const dingSound = document.getElementById("ding");
+    const popupMsg = document.getElementById("popupMsg");
+
+    let username = "";
+    let habit = "";
+    let streak = parseInt(localStorage.getItem("streak")) || 1;
+    let lastVisit = localStorage.getItem("lastVisit") || "";
+
+    function showLogin() {
+      loginPopup.style.display = "flex";
+    }
+
+    function login() {
+      username = document.getElementById("username").value.trim();
+      if (username === "") return alert("Please enter your name.");
+      greeting.innerText = `Welcome, ${username}!`;
+      loginPopup.style.display = "none";
+      dashboard.style.display = "flex";
+      checkStreak();
+      dingSound.play();
+    }
+
+    function setHabit(selectedHabit) {
+      habit = selectedHabit;
+      habitTitle.innerText = `Focus: ${habit}`;
+      updateStreak();
+    }
+
+    function updateStreak() {
+      const today = new Date().toLocaleDateString();
+      streakDisplay.innerText = `Day ${streak} – ${today}`;
+    }
+
+    function checkStreak() {
+      const today = new Date().toLocaleDateString();
+      if (lastVisit && lastVisit !== today) {
+        const lastDate = new Date(lastVisit);
+        const todayDate = new Date(today);
+        const diffDays = Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24));
+        if (diffDays === 1) {
+          streak++;
+          localStorage.setItem("streak", streak);
+          popupMsg.style.display = "block";
+          dingSound.play();
+          setTimeout(() => { popupMsg.style.display = "none"; }, 2000);
+        } else {
+          streak = 1;
+          localStorage.setItem("streak", streak);
+        }
+      }
+      localStorage.setItem("lastVisit", today);
+      updateStreak();
+    }
+
+    function showMotivation() {
+      const tips = [
+        "Small steps every day lead to big changes.",
+        "Focus on progress, not perfection.",
+        "You’re stronger than your cravings.",
+        "Discipline now, freedom later.",
+        "Your future self will thank you."
+      ];
+      const randomTip = tips[Math.floor(Math.random() * tips.length)];
+      motivationText.innerText = randomTip;
+      dingSound.play();
+    }
+
+    function resetStreak() {
+      if (confirm("Are you sure you want to reset your streak?")) {
+        streak = 1;
+        localStorage.setItem("streak", streak);
+        updateStreak();
+      }
+    }
+
+    function logout() {
+      dashboard.style.display = "none";
+      loginPopup.style.display = "flex";
+      dingSound.play();
+    }
+  </script>
+</body>
+  </html>
